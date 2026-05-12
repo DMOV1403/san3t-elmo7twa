@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صانعة المحتوى | مطورة أعمال</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0eb;
+    --slate: #8fa0aa;
+    --mauve: #b8839a;
+    --gold: #e8c84a;
+    --light-slate: #c8d4d9;
+    --dark-slate: #5a7280;
+    --text: #3a3a3a;
+    --text-light: #7a7a7a;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* Floating circles background */
+  .bg-circles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-circles span {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(143, 160, 170, 0.15);
+  }
+  .bg-circles span:nth-child(1) { width: 300px; height: 300px; top: 10%; right: -80px; }
+  .bg-circles span:nth-child(2) { width: 200px; height: 200px; top: 50%; left: 5%; }
+  .bg-circles span:nth-child(3) { width: 150px; height: 150px; bottom: 20%; right: 15%; }
+  .bg-circles span:nth-child(4) { width: 400px; height: 400px; bottom: -100px; left: -100px; }
+  .bg-circles span:nth-child(5) { width: 100px; height: 100px; top: 30%; left: 30%; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; width: 100%;
+    z-index: 100;
+    padding: 18px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(245, 240, 235, 0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(143, 160, 170, 0.2);
+  }
+  .nav-logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--slate);
+    letter-spacing: -0.5px;
+  }
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--mauve); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 100px 8% 60px;
+    position: relative;
+    z-index: 1;
+    gap: 40px;
+  }
+  .hero-text { animation: fadeUp 0.9s ease forwards; }
+  .hero-tag {
+    display: inline-block;
+    background: var(--light-slate);
+    color: var(--dark-slate);
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+  }
+  .hero-title {
+    font-size: clamp(3.5rem, 8vw, 6.5rem);
+    font-weight: 900;
+    color: var(--slate);
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -2px;
+  }
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--mauve);
+    font-weight: 600;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-subtitle::before {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 2px;
+    background: var(--mauve);
+  }
+  .hero-badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .badge {
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--slate);
+    color: white;
+    box-shadow: 0 4px 15px rgba(143, 160, 170, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .badge:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(143, 160, 170, 0.4); }
+  .badge.gold { background: var(--gold); color: var(--text); }
+  .badge.mauve { background: var(--mauve); }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--gold);
+    color: var(--text);
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(232, 200, 74, 0.4);
+    transition: all 0.3s;
+  }
+  .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(232, 200, 74, 0.5); }
+
+  .hero-visual {
+    position: relative;
+    animation: fadeIn 1.2s ease forwards;
+    display: flex;
+    justify-content: center;
+  }
+  .hero-card {
+    background: white;
+    border-radius: 30px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(143, 160, 170, 0.2);
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -10px; right: -10px;
+    width: 100%; height: 100%;
+    border-radius: 30px;
+    border: 2px solid var(--gold);
+    z-index: -1;
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .stat-item {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--slate);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: 500;
+  }
+  .hero-quote {
+    background: var(--slate);
+    color: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 100px 8%;
+    position: relative;
+    z-index: 1;
+  }
+  .section-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .section-label {
+    display: inline-block;
+    color: var(--mauve);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .section-title span { color: var(--slate); }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to left, transparent, var(--gold), transparent);
+    margin: 0 8%;
+    width: 84%;
+  }
+
+  /* WHY ME */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .why-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid rgba(143, 160, 170, 0.15);
+    box-shadow: 0 4px 20px rgba(143, 160, 170, 0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .why-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 80px; height: 80px;
+    background: var(--light-slate);
+    border-radius: 50%;
+    opacity: 0.2;
+    transform: translate(30px, 30px);
+  }
+  .why-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(143, 160, 170, 0.2); }
+  .why-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--slate), var(--dark-slate));
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 20px rgba(143, 160, 170, 0.35);
+  }
+  .why-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .why-card p {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    line-height: 1.7;
+  }
+
+  /* SERVICES */
+  .services-section { background: white; }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  .service-card {
+    border-radius: 24px;
+    padding: 40px 32px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s;
+  }
+  .service-card:hover { transform: translateY(-8px); }
+  .service-card:nth-child(1) { background: var(--slate); color: white; }
+  .service-card:nth-child(2) { background: var(--cream); border: 2px solid var(--light-slate); }
+  .service-card:nth-child(3) { background: var(--mauve); color: white; }
+  .service-num {
+    font-size: 4rem;
+    font-weight: 900;
+    opacity: 0.15;
+    position: absolute;
+    top: 10px; left: 20px;
+    line-height: 1;
+  }
+  .service-card h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .service-card p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+    opacity: 0.85;
+    position: relative;
+  }
+
+  /* EXPERTISE */
+  .expertise-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  .expertise-item {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(143, 160, 170, 0.1);
+    transition: transform 0.3s;
+  }
+  .expertise-item:hover { transform: scale(1.03); }
+  .donut-wrap {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+  }
+  .donut-wrap svg { transform: rotate(-90deg); }
+  .donut-bg { fill: none; stroke: var(--light-slate); stroke-width: 10; }
+  .donut-fill { fill: none; stroke: var(--mauve); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease; }
+  .donut-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--slate);
+  }
+  .expertise-item h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* TESTIMONIALS */
+  .testimonials-section { background: var(--cream); }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .testi-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 20px rgba(143, 160, 170, 0.1);
+    position: relative;
+    border-top: 4px solid var(--light-slate);
+    transition: transform 0.3s;
+  }
+  .testi-card:hover { transform: translateY(-4px); }
+  .testi-card:nth-child(2n) { border-top-color: var(--mauve); }
+  .testi-card:nth-child(3n) { border-top-color: var(--gold); }
+  .testi-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--slate);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .testi-name::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--mauve);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .testi-card p {
+    font-size: 0.88rem;
+    color: var(--text-light);
+    line-height: 1.8;
+  }
+
+  /* CLIENTS */
+  .clients-section { background: white; }
+  .clients-grid {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .client-badge {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 20px 32px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--dark-slate);
+    border: 1.5px solid var(--light-slate);
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .client-badge:hover {
+    background: var(--slate);
+    color: white;
+    border-color: var(--slate);
+    transform: translateY(-3px);
+  }
+
+  /* CHAT TESTIMONIALS */
+  .chat-section { background: var(--cream); }
+  .chat-bubbles {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .chat-bubble {
+    background: white;
+    border-radius: 18px 18px 4px 18px;
+    padding: 16px 22px;
+    max-width: 80%;
+    box-shadow: 0 2px 12px rgba(143, 160, 170, 0.15);
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 500;
+    align-self: flex-end;
+    position: relative;
+    animation: floatIn 0.5s ease forwards;
+    opacity: 0;
+  }
+  .chat-bubble:nth-child(1) { animation-delay: 0.2s; }
+  .chat-bubble:nth-child(2) { animation-delay: 0.5s; align-self: flex-start; border-radius: 18px 18px 18px 4px; background: var(--slate); color: white; }
+  .chat-bubble:nth-child(3) { animation-delay: 0.8s; }
+  .chat-bubble:nth-child(4) { animation-delay: 1.1s; align-self: flex-start; border-radius: 18px 18px 18px 4px; background: var(--mauve); color: white; }
+  .chat-bubble:nth-child(5) { animation-delay: 1.4s; }
+  .chat-time {
+    font-size: 0.7rem;
+    opacity: 0.5;
+    margin-top: 6px;
+    text-align: left;
+  }
+
+  /* CTA */
+  .cta-section {
+    text-align: center;
+    background: linear-gradient(135deg, var(--slate) 0%, var(--dark-slate) 100%);
+    color: white;
+    border-radius: 40px;
+    margin: 0 5% 80px;
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 250px; height: 250px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0.12;
+  }
+  .cta-section::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 300px; height: 300px;
+    background: var(--mauve);
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+  .cta-section h2 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .cta-section p {
+    font-size: 1.1rem;
+    opacity: 0.8;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--gold);
+    color: var(--text);
+    padding: 16px 40px;
+    border-radius: 50px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 8px 30px rgba(232, 200, 74, 0.5);
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+  .cta-btn:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(232, 200, 74, 0.6); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 32px 8%;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    border-top: 1px solid rgba(143,160,170,0.2);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes floatIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Mobile */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 100px 6% 60px; }
+    .hero-visual { display: none; }
+    .services-grid { grid-template-columns: 1fr; }
+    .expertise-grid { grid-template-columns: repeat(2, 1fr); }
+    nav .nav-links { display: none; }
+  }
+  @media (max-width: 600px) {
+    .expertise-grid { grid-template-columns: 1fr 1fr; }
+    .why-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-circles">
+  <span></span><span></span><span></span><span></span><span></span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">صانعة المحتوى</div>
+  <ul class="nav-links">
+    <li><a href="#about">لماذا أنا</a></li>
+    <li><a href="#services">الخدمات</a></li>
+    <li><a href="#expertise">مجالاتي</a></li>
+    <li><a href="#testimonials">التوصيات</a></li>
+    <li><a href="#contact">تواصل</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-tag">✦ مطورة أعمال محترفة</div>
+    <h1 class="hero-title">صانعة<br>المحتوى</h1>
+    <p class="hero-subtitle">متخصصة في صناعة المحتوى التسويقي</p>
+    <div class="hero-badges">
+      <span class="badge">⭐ تفوق</span>
+      <span class="badge gold">💰 أرباح</span>
+      <span class="badge mauve">💎 ثراء</span>
+    </div>
+    <a href="#contact" class="hero-cta">تواصلي معي الآن ←</a>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hero-card">
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-num">+6</div>
+          <div class="stat-label">سنوات خبرة</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">4+</div>
+          <div class="stat-label">علامات تجارية</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">5</div>
+          <div class="stat-label">أدوار قيادية</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">أرباح خيالية</div>
+        </div>
+      </div>
+      <div class="hero-quote">
+        هنا، حيث يأخذِك المحتوى<br>لأبعد مما تحلمين!
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHY ME -->
+<section id="about">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">السبب</div>
+    <h2 class="section-title">لماذا <span>تثقين بي؟</span></h2>
+  </div>
+  <div class="why-grid">
+    <div class="why-card animate-on-scroll">
+      <div class="why-icon">🏆</div>
+      <h3>خبرة تمتد لـ 6+ سنوات</h3>
+      <p>خبرتي في مجال التسويق الرقمي وصناعة المحتوى ممتدة لمدة تزيد على 6 سنوات متواصلة من العطاء والنجاح.</p>
+    </div>
+    <div class="why-card animate-on-scroll">
+      <div class="why-icon">🚀</div>
+      <h3>مطورة أعمال نشطة</h3>
+      <p>أعمل حاليًا كـ Business Developer لمجموعة من العلامات التجارية المختلفة وأساهم في نموها الرقمي.</p>
+    </div>
+    <div class="why-card animate-on-scroll">
+      <div class="why-icon">💡</div>
+      <h3>أرباح خيالية بخطط ناجحة</h3>
+      <p>حققت الكثير من الأرباح الخيالية للمشاريع الناشئة والمتوسطة بفضل الخطط التسويقية الناجحة.</p>
+    </div>
+    <div class="why-card animate-on-scroll">
+      <div class="why-icon">🎯</div>
+      <h3>أدوار قيادية متعددة</h3>
+      <p>شغلت شواغر وظيفية مختلفة: Head of Marketing، General Manager، Head of Customer Service، Content Writer، Business Developer.</p>
+    </div>
+    <div class="why-card animate-on-scroll">
+      <div class="why-icon">📚</div>
+      <h3>مستشار تعليمي معتمد</h3>
+      <p>عملت كمستشار تعليمي لمنصة جيل للأطفال، مما يعكس تنوع خبراتي في قطاعات متعددة.</p>
+    </div>
+    <div class="why-card animate-on-scroll">
+      <div class="why-icon">✨</div>
+      <h3>نتائج ملموسة وموثقة</h3>
+      <p>أعمالي موثقة بأرقام حقيقية وتوصيات من عملاء راضين يشهدون بجودة المحتوى وتأثيره على مبيعاتهم.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SERVICES -->
+<section id="services" class="services-section">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">ما أقدمه</div>
+    <h2 class="section-title">خدماتي <span>لكِ</span></h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-card animate-on-scroll">
+      <div class="service-num">01</div>
+      <h3>استشارة تسويقية</h3>
+      <p>مناقشة التحديات ووضع خطة منظمة وحلول لها، وطرح أفكار تسويقية مميزة لتطوير البيزنيس والمحتوى.</p>
+    </div>
+    <div class="service-card animate-on-scroll">
+      <div class="service-num">02</div>
+      <h3>مساعدك الشخصي</h3>
+      <p>تنقيح ومراجعة محتويات مكتوبة والوصول بها لشكل احترافي وتسويقي لنتائج مميزة تفوق التوقعات.</p>
+    </div>
+    <div class="service-card animate-on-scroll">
+      <div class="service-num">03</div>
+      <h3>كتابة المحتوى</h3>
+      <p>باكيدج شهري بمحتويات جاهزة للنشر، تسويق وبيع مكتوبة خصيصًا لعلامتك التجارية ومتوافقة مع هويتها.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EXPERTISE -->
+<section id="expertise">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">التخصص</div>
+    <h2 class="section-title">مجالات <span>خبراتي</span></h2>
+  </div>
+  <div class="expertise-grid">
+    <div class="expertise-item animate-on-scroll">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="donut-bg" cx="50" cy="50" r="40"/>
+          <circle class="donut-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="150" data-pct="40"/>
+        </svg>
+        <div class="donut-text">40%</div>
+      </div>
+      <h4>التجميل والعناية</h4>
+    </div>
+    <div class="expertise-item animate-on-scroll">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="donut-bg" cx="50" cy="50" r="40"/>
+          <circle class="donut-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="201" data-pct="20"/>
+        </svg>
+        <div class="donut-text">20%</div>
+      </div>
+      <h4>المهارات الفنية</h4>
+    </div>
+    <div class="expertise-item animate-on-scroll">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="donut-bg" cx="50" cy="50" r="40"/>
+          <circle class="donut-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="201" data-pct="20"/>
+        </svg>
+        <div class="donut-text">20%</div>
+      </div>
+      <h4>الخدمات</h4>
+    </div>
+    <div class="expertise-item animate-on-scroll">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="donut-bg" cx="50" cy="50" r="40"/>
+          <circle class="donut-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="201" data-pct="20"/>
+        </svg>
+        <div class="donut-text">20%</div>
+      </div>
+      <h4>الأعمال اليدوية</h4>
+    </div>
+    <div class="expertise-item animate-on-scroll">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="donut-bg" cx="50" cy="50" r="40"/>
+          <circle class="donut-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="226" data-pct="10"/>
+        </svg>
+        <div class="donut-text">10%</div>
+      </div>
+      <h4>التجارة الإلكترونية</h4>
+    </div>
+    <div class="expertise-item animate-on-scroll">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="donut-bg" cx="50" cy="50" r="40"/>
+          <circle class="donut-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="226" data-pct="10"/>
+        </svg>
+        <div class="donut-text">10%</div>
+      </div>
+      <h4>التربية والتعليم</h4>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CLIENTS -->
+<section id="clients" class="clients-section">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">الشراكات</div>
+    <h2 class="section-title">شركاء <span>النجاح</span></h2>
+  </div>
+  <div class="clients-grid">
+    <div class="client-badge animate-on-scroll">🌹 Dr Rose</div>
+    <div class="client-badge animate-on-scroll">✨ نضرة</div>
+    <div class="client-badge animate-on-scroll">👑 Lady Tabtab</div>
+    <div class="client-badge animate-on-scroll">🌟 جيل للأطفال</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CHAT TESTIMONIALS -->
+<section class="chat-section">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">آراء العملاء</div>
+    <h2 class="section-title">يقولون <span>عني</span></h2>
+  </div>
+  <div class="chat-bubbles">
+    <div class="chat-bubble">أنتِ شاطر في الكوبي رايتنج اللي هو محتوى هدفه البيع</div>
+    <div class="chat-bubble">شغل عالي يا أنفال ده الله أكبر 😊🌿</div>
+    <div class="chat-bubble">فخورة بكِ وبردودكِ الحلوة وذكاء الرفيو</div>
+    <div class="chat-bubble">البوست بتاعكِ خرب الدنيا ⭐</div>
+    <div class="chat-bubble">محتوى احترافي بيحول الزوار لعملاء بالفعل!</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="testimonials-section">
+  <div class="section-header animate-on-scroll">
+    <div class="section-label">توصيات</div>
+    <h2 class="section-title">ماذا قالوا <span>بعد التجربة</span></h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testi-card animate-on-scroll">
+      <div class="testi-name">Sara Mohamed</div>
+      <p>تعرفت عليها بعد كثير من التجارب خلفيها. أنا مهنة صنع المحتوى درب من دروب بيع الوهم. حجزت الاستشارة وكانت لطيفة وداعمة جدًا حتى بعد الاستشارة كانت من فترة لتنصحني. أخلاصها في شغلها وإحساسها بالمسؤولية الكاملة تجاه العمل واضح جدًا وينعكس.</p>
+    </div>
+    <div class="testi-card animate-on-scroll">
+      <div class="testi-name">أميرة إبراهيم</div>
+      <p>الحمد لله الذي يسر لنا لقاء مميزًا مع أنفال في استشارة حول تطوير محتوى أكاديمية "رؤية". حدّثنا عن أفكار إبداعية وضبط الخطوات وكيفية إبراز نقاط القوة الكاملة لدينا في الأكاديمية. بكل أمانة، كان حديثها مليئًا بالإلهام والتوجيه السديد.</p>
+    </div>
+    <div class="testi-card animate-on-scroll">
+      <div class="testi-name">Maria Morsy Mahmoud</div>
+      <p>جربت كتاب محتوى كثير، هي الأفضل على الإطلاق. بتفهم دماغك وتتحرك على أساسها. استشاراتها دائمًا مثمرة، وبتوصل لحاجات كثير حلوة. أنصح جدًا أي حد يشتغل معها لو عاوز يلاقي فرق ملموس وحقيقي في وقت صغير 🎯</p>
+    </div>
+    <div class="testi-card animate-on-scroll">
+      <div class="testi-name">مريم الطرباني</div>
+      <p>أنا بقول لأنفال دايمًا إنها أشطر واحدة كده. ومن غير ما يكتبيلي حد ثاني لأن حقيقي كتاباتها مميزة، قلمها مختلف وبتعرف من علي غير ما تكون ظاهرة في الصورة. ماشاءالله مهتمة بكل التفاصيل، منظمة، مواعيدها محظوظة وعندها قدرة على الإبداع الحقيقية.</p>
+    </div>
+    <div class="testi-card animate-on-scroll">
+      <div class="testi-name">Jihad Saad</div>
+      <p>أشطر صانعة محتوى تعاملت معاها. الأول بدأنا بإستشارة لها طبقتها وبحسيت بفرق واضح في الشغل والمبيعات. واشتغلنا سوا، تواصل ممتاز، مرونة، فرق في التعامل. من الآخر أرشح وبقوة ✨</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section" id="contact">
+  <h2>لم ينته اللقاء! 🎯</h2>
+  <p>أنا بانتظاركِ لسماع أفكاركِ — لنحقق سويًا المزيد من النجاحات</p>
+  <a href="https://www.facebook.com" class="cta-btn">تواصلي معي الآن على Facebook ←</a>
+</div>
+
+<footer>
+  <p>© 2024 صانعة المحتوى · مطورة أعمال · متخصصة في صناعة المحتوى التسويقي</p>
+</footer>
+
+<script>
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(el => {
+      if (el.isIntersecting) {
+        el.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+  // Donut chart animation
+  const donutObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const fills = entry.target.querySelectorAll('.donut-fill');
+        fills.forEach(fill => {
+          const pct = parseInt(fill.dataset.pct);
+          const circumference = 251.2;
+          const offset = circumference - (pct / 100) * circumference;
+          fill.style.strokeDashoffset = offset;
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.expertise-grid').forEach(el => donutObserver.observe(el));
+</script>
+</body>
+</html>
